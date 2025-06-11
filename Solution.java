@@ -1,44 +1,68 @@
-package Arrays;
+package Strings;
 
 public class Solution {
 
-    // Method to check if s2 can be formed from s1 with character increment allowed
-    public boolean canMakeSubsequence(String s1, String s2) {
+    public boolean canChange(String start, String target) {
+        int n = start.length();
+
+        char[] st = start.toCharArray();
+        char[] tar = target.toCharArray();
+
         int i = 0, j = 0;
-        while (i < s1.length() && j < s2.length()) {
-            char c1 = s1.charAt(i);
-            char c2 = s2.charAt(j);
-            // Match directly or allow one alphabetical step (with wraparound from z to a)
-            if (c1 == c2 || (c1 + 1 == c2) || (c1 == 'z' && c2 == 'a')) {
-                j++;
+
+        while (i < n && j < n) {
+            // Skip underscores in both strings
+            while (i < n && st[i] == '_') i++;
+            while (j < n && tar[j] == '_') j++;
+
+            // If one reaches the end before the other
+            if (i == n || j == n) {
+                return i == n && j == n;
             }
+
+            // Characters must match
+            if (st[i] != tar[j]) {
+                return false;
+            }
+
+            // Movement rules:
+            // 'L' can only move left (i >= j), 'R' can only move right (i <= j)
+            if (st[i] == 'L' && i < j) return false;
+            if (st[i] == 'R' && i > j) return false;
+
             i++;
+            j++;
         }
-        return j == s2.length();
+
+        // Skip remaining underscores
+        while (i < n && st[i] == '_') i++;
+        while (j < n && tar[j] == '_') j++;
+
+        return i == n && j == n;
     }
 
-    // Main method to test the logic
     public static void main(String[] args) {
         Solution solution = new Solution();
 
-        // Sample input
-        String s1 = "abcde";
-        String s2 = "bd";
+        String start = "_L__R__R_";
+        String target = "L______RR";
 
-        boolean result = solution.canMakeSubsequence(s1, s2);
-        System.out.println("Can make subsequence: " + result);
-
-        // Another test with wraparound
-        String s3 = "xyz";
-        String s4 = "ya";
-        System.out.println("Can make subsequence (wraparound): " + solution.canMakeSubsequence(s3, s4));
+        boolean result = solution.canChange(start, target);
+        System.out.println("Can change: " + result);
     }
 }
+/* Example 1:
 
-/*Example 1:
-
-Input: str1 = "abc", str2 = "ad"
+Input: start = "_L__R__R_", target = "L______RR"
 Output: true
-Explanation: Select index 2 in str1.
-Increment str1[2] to become 'd'.
-Hence, str1 becomes "abd" and str2 is now a subsequence. Therefore, true is returned.*/
+Explanation: We can obtain the string target from start by doing the following moves:
+- Move the first piece one step to the left, start becomes equal to "L___R__R_".
+- Move the last piece one step to the right, start becomes equal to "L___R___R".
+- Move the second piece three steps to the right, start becomes equal to "L______RR".
+Since it is possible to get the string target from start, we return true.
+Example 2:
+
+Input: start = "R_L_", target = "__LR"
+Output: false
+Explanation: The 'R' piece in the string start can move one step to the right to obtain "_RL_".
+After that, no pieces can move anymore, so it is impossible to obtain the string target from start.*/
